@@ -3,16 +3,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 90vh; 
   position: relative;
+  height: fit-content;
+  min-height: 100vh;
+  overflow: hidden;
 }
 
 /* Each card stacked */
 .card {
-  position: absolute;
-  border: none; /* remove harsh border */
+  position: relative;
+  border: none; 
   border-radius: 16px;
-  height: 500px;
+  height: fit-content;
+  margin: 40px 0px;
   width: 380px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* soft subtle shadow */
   background: #eefafc;
@@ -23,16 +26,6 @@
 /* Hover effect for nicer feel */
 .card:hover {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-}
-
-/* Card image as div with background */
-.cardImage {
-  height: 70%;
-  width: 100%;
-  background-size: cover;
-  background-position: center;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
 }
 
 /* Text at the bottom of card */
@@ -57,8 +50,9 @@
 /* Image Container */
 .imageContainer {
   position: relative;
-  height: 200px;
   overflow: hidden;
+  width: 100%;
+  border-radius: 15px 15px 0px 0px;
 }
 
 .profileImage {
@@ -235,13 +229,14 @@
   color: #666;
 }
 
-.personalitytags {
+.activitiesTag {
   display: flex;
   flex-wrap: wrap;
+  justify-content: end;
   gap: 0.5rem;
 }
 
-.personalitytag {
+.activityTag {
   background: rgba(102, 126, 234, 0.1);
   color: #667eea;
   padding: 0.25rem 0.75rem;

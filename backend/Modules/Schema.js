@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -18,10 +18,10 @@ const userSchema = new mongoose.Schema({
   locationPref: { type: Array },
   natureType: { type: Array },
   interestType: { type: Array },
-  password: { type: String },        
-  googleId: { type: String },        
+  password: { type: String },
+  googleId: { type: String },
   photo: { data: Buffer, contentType: String },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 const messageSchema = new mongoose.Schema({
@@ -34,14 +34,26 @@ const messageSchema = new mongoose.Schema({
 
 const notificationSchema = new mongoose.Schema({
   userId: String, // who should receive it
-  from: String,   // sender
+  from: String, // sender
   text: String,
   createdAt: { type: Date, default: Date.now },
-  delivered: { type: Boolean, default: false }
+  delivered: { type: Boolean, default: false },
+});
+
+const tripSchema = new mongoose.Schema({
+  createdBy: mongoose.Schema.Types.ObjectId,
+  tripType: Array,
+  destination: String,
+  groupSize: Number,
+  activities: Array,
+  totalCost: Number,
+  travelDate: Date,
+  budget: Number,
+  notes: String,
+  likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 export const Message = mongoose.model("Message", messageSchema);
 export const Notifications = mongoose.model("Notification", notificationSchema);
-export const User = mongoose.model('User', userSchema);
-
-
+export const User = mongoose.model("User", userSchema);
+export const Trips = mongoose.model("Trips", tripSchema);

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import styles from "./AddTravelDetails.module.css";
 import { toast } from "react-toastify";
+import { BASE } from "../../../api";
 
 const AddTravelDetails = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +22,6 @@ const AddTravelDetails = () => {
     destination: "",
     groupSize: "",
     activities: [],
-    contact: "",
     totalCost: "",
     travelDate: "",
     budget: "",
@@ -90,29 +90,51 @@ const AddTravelDetails = () => {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setShowSuccessAnimation(true);
-    setTimeout(() => {
-      setShowSuccessAnimation(false);
-      toast.info("Travel details saved successfully! 🎉");
-    }, 1500);
+    try {
+      const response = await fetch(BASE + "/addTrip", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Origin: "*",
+          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        toast.info("Travel details saved successfully! 🎉");
+      } else if (response.status === 403) {
+        toast.error("Token Invalid Login Again");
+        setTimeout(() => {
+          sessionStorage.removeItem("userToken");
+          dispatch({ type: "CLEAR_USER" });
+          navigate("/login", { replace: true });
+        }, 3000);
+      } else {
+        toast.error("Someting went wrong");
+      }
+    } catch (error) {
+      toast.error("Some Error Occured");
+    } finally {
+      setTimeout(() => {
+        handleReset();
+        setShowSuccessAnimation(false);
+      }, 2000);
+    }
   };
 
-  const handleCancel = () => {
+  const handleReset = () => {
     setFormData({
-      tripType: ["Adventure"],
+      tripType: [""],
       destination: "",
       groupSize: "",
       activities: [],
-      contact: "",
-      checkIn: "",
-      checkOut: "",
-      hotelName: "",
       totalCost: "",
       travelDate: "",
       budget: "",
       notes: "",
-      booking: "",
     });
   };
 
@@ -163,20 +185,6 @@ const AddTravelDetails = () => {
                 />
               </div>
 
-              {/* Group Size */}
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Group size</label>
-                <input
-                  type="number"
-                  className={styles.input}
-                  value={formData.groupSize}
-                  onChange={(e) =>
-                    handleInputChange("groupSize", e.target.value)
-                  }
-                  placeholder="Number of travelers"
-                  min="1"
-                />
-              </div>
 
               {/* Activities */}
               <div className={styles.formGroup}>
@@ -202,18 +210,20 @@ const AddTravelDetails = () => {
 
             {/* Right Column */}
             <div className={styles.rightColumn}>
-              {/* Contact */}
+              {/* Group Size */}
               <div className={styles.formGroup}>
-                <label className={styles.label}>Contact</label>
+                <label className={styles.label}>Group size</label>
                 <input
-                  type="text"
+                  type="number"
                   className={styles.input}
-                  value={formData.contact}
-                  onChange={(e) => handleInputChange("contact", e.target.value)}
-                  placeholder="Email or phone number"
+                  value={formData.groupSize}
+                  onChange={(e) =>
+                    handleInputChange("groupSize", e.target.value)
+                  }
+                  placeholder="Number of travelers"
+                  min="1"
                 />
               </div>
-
               {/* Total Cost */}
               <div className={styles.formGroup}>
                 <label className={styles.label}>Total cost</label>
@@ -280,7 +290,7 @@ const AddTravelDetails = () => {
             <button
               type="button"
               className={styles.cancelButton}
-              onClick={handleCancel}
+              onClick={handleReset}
             >
               Cancel
             </button>

@@ -25,6 +25,7 @@
   z-index: 100;
   flex-shrink: 0;
   transition: width 0.3s ease-in-out;
+  position: sticky;
 }
 
 .sidebar.close{
@@ -115,24 +116,10 @@
   animation: pulse 2s infinite;
 }
 
-.subItem {
-  padding-left: 2rem;
-  font-size: 0.9rem;
-  background-color: rgba(255, 255, 255, 0.03);
-}
-
 .sidebarItemContent {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-.submenuArrow {
-  transition: transform 0.2s ease;
-}
-
-.submenuArrow.collapsed {
-  transform: rotate(-90deg);
 }
 
 .sidebarFooter {

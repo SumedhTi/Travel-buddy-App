@@ -1,5 +1,36 @@
 import { User } from "../Modules/Schema.js";
 
+//Create a new recomendation model you can see the scemas.js to analys the fields you are working with
+//the output of the fuction should be as follows
+// [
+//     {
+//       _id:"",
+//       name: "",
+//       age: "",
+//       location: "",
+//       tripType: [],
+//       destination: "",
+//       groupSize: "",
+//       activities: [],
+//       contact: ,
+//       totalCost: ,
+//       travelDate: "",
+//       budget: ,
+//       notes: "",
+//       photo:""
+//     },
+//   ]
+
+
+
+
+
+
+
+
+
+
+//DEPRECATED create a new fuction this is kept here to take ideas only
 export const getRecommendations = async (req, res) => {
   try {
     const userId = req.user.id;

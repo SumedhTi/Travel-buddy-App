@@ -15,6 +15,7 @@ import socket from "./socket";
 import { useEffect } from "react";
 import { useState } from "react";
 import Home from "./pages/Home/Home";
+import TripsView from "./pages/trips/TripsView";
 
 function App() {
   const { state } = useUser();
@@ -55,6 +56,8 @@ function App() {
         <Route element={<LayoutWithNavbar />}>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/AddTrip" element={<AddTravelDetails />} />
+          <Route path="/AddTrip/:id" element={<AddTravelDetails />} />
+          <Route path="/trips" element={<TripsView />} />
           <Route path="/chat/:otherUserId" element={<Chat setActiveChatId={setActiveChatId} />} />
           <Route path="/Home" element={<Home />} />
         </Route>

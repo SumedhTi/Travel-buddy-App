@@ -12,51 +12,40 @@ import {
   Settings,
   Menu,
   Plus,
+  Briefcase,
 } from "lucide-react";
 import styles from "./NavBar.module.css";
 import { useEffect, useRef, useState } from "react";
 import useIsMobile from "../../isMobile.js";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useUser } from "../../GlobalUserContext.jsx";
 
 const NavBar = ({ components }) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState({});
   const navigate = useNavigate();
-  const {state, dispatch} = useUser();
-  const [openMenu, setOpenMenu] = useState();
+  const location = useLocation();
+  const { state, dispatch } = useUser();
   const isMobile = useIsMobile();
   const sidebarRef = useRef(null);
   const [isOpen, setIsOpen] = useState(!isMobile);
   const dropdownRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-
   const [sidebarItems, setSidebarItems] = useState([
-    { id: "home", label: "Home", icon: Home, active: false, route:`/profile` },
-    {
-      id: "trips",
-      label: "Trips",
-      icon: Plane,
-      active: true,
-      hasSubmenu: true,
-    },
+    { id: "home", label: "Home", icon: Home, active: false, route: `/profile` },
     {
       id: "join",
       label: "Join a trip",
       icon: Users,
       active: false,
-      isSubItem: true,
-      parentItemId:"trips"
+      route: "/home",
     },
     {
       id: "create",
       label: "Create a trip",
       icon: Plus,
       active: false,
-      isSubItem: true,
-      parentItemId:"trips",
-      route:"AddTrip"
+      route: "/AddTrip",
     },
     { id: "buddies", label: "My buddies", icon: Heart, active: false },
     {
@@ -64,28 +53,22 @@ const NavBar = ({ components }) => {
       label: "Travel plans",
       icon: Calendar,
       active: false,
-      hasSubmenu: true,
+      route: "/trips",
     },
     {
       id: "destinations",
       label: "Destinations",
       icon: MapPin,
       active: false,
-      hasSubmenu: true,
     },
     {
       id: "chats",
       label: "Group chats",
       icon: MessageSquare,
       active: false,
-      hasSubmenu: true,
     },
     { id: "itineraries", label: "Itineraries", icon: Book, active: false },
   ]);
-
-  const toggleMenu = (label) => {
-    setOpenMenu((prev) => (prev === label ? "" : label));
-  };
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -108,9 +91,20 @@ const NavBar = ({ components }) => {
     };
   }, [isMobile, isOpen]);
 
+  useEffect(() => {
+    const path = location.pathname;
+    sidebarItems.forEach((item) => {
+      item.active = item.route === path;
+    });
+    setSidebarItems([...sidebarItems]);
+  }, []);
+
   const setActive = (id) => {
     setSidebarItems(
-      sidebarItems.map((i) => {return { ...i, active: i.id === id, }}));
+      sidebarItems.map((i) => {
+        return { ...i, active: i.id === id };
+      })
+    );
   };
 
   const toggleDropdown = () => {
@@ -132,9 +126,9 @@ const NavBar = ({ components }) => {
         setIsDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
 
@@ -152,33 +146,21 @@ const NavBar = ({ components }) => {
         </div>
 
         <nav className={styles.sidebarNav}>
-          {sidebarItems.map(
-            (item) =>
-              (!item.isSubItem || (item.isSubItem && openMenu == item.parentItemId)) && (
-                <div key={item.id} onClick={() => setActive(item.id)}>
-                  <Link
-                    className={`${styles.sidebarItem} ${
-                      item.active ? styles.activeItem : ""
-                    } ${item.isSubItem ? styles.subItem : ""}`}
-                    onClick={() => item.hasSubmenu && toggleMenu(item.id)}
-                    to={item.route}
-                  >
-                    <div className={styles.sidebarItemContent}>
-                      <item.icon size={18} />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.hasSubmenu && (
-                      <ChevronDown
-                        size={16}
-                        className={`${styles.submenuArrow} ${
-                          openMenu == item.id ? "" : styles.collapsed
-                        }`}
-                      />
-                    )}
-                  </Link>
+          {sidebarItems.map((item) => (
+            <div key={item.id} onClick={() => {setActive(item.id); isMobile && toggleSidebar();}}>
+              <Link
+                className={`${styles.sidebarItem} ${
+                  item.active ? styles.activeItem : ""
+                }`}
+                to={item.route}
+              >
+                <div className={styles.sidebarItemContent}>
+                  <item.icon size={18} />
+                  <span>{item.label}</span>
                 </div>
-              )
-          )}
+              </Link>
+            </div>
+          ))}
         </nav>
 
         <div className={styles.sidebarFooter}>
@@ -201,12 +183,15 @@ const NavBar = ({ components }) => {
             <button className={styles.headerButton}>
               <MessageSquare size={20} />
             </button>
-            <div className={styles.profileButton} ref={dropdownRef} onClick={toggleDropdown}>
+            <div
+              className={styles.profileButton}
+              ref={dropdownRef}
+              onClick={toggleDropdown}
+            >
               <img
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face"
                 alt="Profile"
                 className={styles.profileImage}
-                
               />
               {isDropdownOpen && (
                 <div className={styles.dropdownContent}>
