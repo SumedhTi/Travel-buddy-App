@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm start",
+    "dev": "concurrently --kill-others-on-fail \"npm run start:frontend\" \"npm run start:backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "react-icons": "^5.5.0"
+  }
+}

@@ -1,0 +1,206 @@
+.pageContainer {
+  font-family: "Inter", "Roboto", sans-serif; /* Clean Sans-serif font */
+  padding: 20px;
+  background-color: #f9fafb; /* Light background for the page */
+  box-sizing: border-box;
+}
+
+.pageTitle {
+  color: #1f2937;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.tripsList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between trip cards */
+}
+
+/* --- Trip Card Styling (Box) --- */
+.tripCard {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Important for clean expansion/collapse */
+  transition: all 0.3s ease;
+  min-width: 50vw;
+}
+
+/* --- Collapsed/Summary View --- */
+.tripSummary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  cursor: pointer;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.tripSummary:hover {
+  background-color: #f3f4f6;
+}
+
+.summaryInfo {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.dateRange {
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.location,
+.tripType {
+  font-size: 0.95rem;
+}
+
+.label {
+  font-weight: 600;
+  color: #4b5563; /* Slightly lighter than main text */
+}
+
+.tripType {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.typeTag {
+  padding: 3px 8px;
+  background-color: #e0f2fe; /* Light blue background */
+  color: #0c4a6e; /* Darker blue text */
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* --- Expanded Details View (Accordion Content) --- */
+.tripDetails {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 20px;
+  transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+  color: #1f2937;
+}
+
+.expanded {
+  max-height: 500px; /* Adjust based on max content size */
+  padding: 15px 20px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 5px 0 15px 0;
+}
+
+.detailRow {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 15px;
+}
+
+.detailItem {
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.detailLabel {
+  font-weight: 600;
+  color: #4b5563;
+  margin-right: 5px;
+}
+
+/* --- Activities Section --- */
+.activitiesSection {
+  margin-bottom: 15px;
+}
+
+.activityTagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.activityTag {
+  background-color: #e0f2fe; /* Light blue */
+  color: #007bff;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* --- Notes Section --- */
+.notesSection {
+  margin-bottom: 20px;
+}
+
+.notesText {
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #f7f9fc; /* Very light gray box for notes */
+  border-radius: 6px;
+  border: 1px solid #f3f4f6;
+  font-style: italic;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+/* --- Action Buttons (Delete/Edit) --- */
+.actionButtons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.editButton {
+  color: #007bff;
+}
+
+.editButton:hover {
+  background-color: #e0f2fe;
+}
+
+.deleteButton {
+  color: #ef4444; /* Red for delete */
+}
+
+.deleteButton:hover {
+  background-color: #fee2e2;
+}
+
+@media (max-width: 768px) {
+  .summaryInfo {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

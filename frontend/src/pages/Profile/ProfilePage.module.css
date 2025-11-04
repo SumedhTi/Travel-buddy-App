@@ -1,0 +1,210 @@
+.profileContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  padding: 30px;
+  font-family: Arial, sans-serif;
+}
+.leftSection {
+  flex: 1;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  align-self: flex-start;
+}
+.profilePicWrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  background: #ffe4ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+.profilePic {
+  height: 100%;
+  border-radius: 8px;
+}
+.removePic {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ff4d5096;
+  color: white;
+  border: none;
+  font-size: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.uploadBtn {
+  margin-top: 15px;
+  padding: 8px 12px;
+  border: none;
+  background: #0077ff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.passwordSection {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.passwordSection input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.changePassBtn {
+  padding: 10px;
+  background: #222;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.rightSection {
+  flex: 3;
+}
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cancelBtn {
+  margin-left: 20px;
+}
+.tab {
+  margin-right: 15px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.tab.active {
+  border-bottom: 2px solid #0077ff;
+  padding-bottom: 4px;
+}
+.addUserBtn {
+  padding: 6px 10px;
+  border: none;
+  background: #0077ff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.profileForm h3 {
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+.profileForm input,
+.profileForm textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+}
+.profileForm textarea {
+  min-height: 100px;
+}
+.saveBtn {
+  margin-top: 20px;
+  padding: 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.formRow {
+  display: flex;
+  align-items: center;
+}
+.formLabel {
+  flex: 0 0 120px;
+  font-weight: bold;
+  color: #333;
+}
+.formValue {
+  flex: 1;
+  margin-bottom: 10px;
+  color: #444;
+}
+.formRow input,
+.formRow textarea {
+  flex: 1;
+  margin-bottom: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.toggleBtn {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  cursor: pointer;
+  min-width: 60px;
+}
+.toggleBtn.active {
+  background: #0077ff;
+  color: white;
+  border-color: #0077ff;
+}
+
+.passwordField{
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.activitiesGrid {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.activityButton {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  text-align: center;
+  max-width: fit-content;
+}
+
+.activityButton:hover {
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.activityActive {
+  background-color: #dbeafe;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  font-weight: 500;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .profileContainer{
+    flex-direction: column;
+  }
+}
