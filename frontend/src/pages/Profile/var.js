@@ -1,3 +1,17 @@
+import {
+  Save,
+  Coffee,
+  Mountain,
+  Book,
+  Landmark,
+  Crown,
+  Car,
+  Leaf,
+  Wallet,
+  Heart,
+  Briefcase,
+} from "lucide-react";
+
 export const customStyles = {
   control: (provided, state) => ({
     ...provided,
@@ -50,7 +64,7 @@ export const customStyles = {
     borderRadius: "12px",
     boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
     overflow: "hidden",
-    zIndex: 9999
+    zIndex: 9999,
   }),
   menuPortal: (provided) => ({
     ...provided,
@@ -65,20 +79,11 @@ export const preferences = {
     { value: "city", label: "City" },
     { value: "desert", label: "Desert" },
     { value: "countryside", label: "Countryside" },
-  ],
-  natureType: [
     { value: "forest", label: "Forest" },
     { value: "waterfalls", label: "Waterfalls" },
     { value: "wildlife", label: "Wildlife" },
     { value: "lakes", label: "Lakes" },
     { value: "hills", label: "Hills" },
-  ],
-  interestType: [
-    { value: "adventure", label: "Adventure" },
-    { value: "cultural", label: "Cultural" },
-    { value: "historical", label: "Historical" },
-    { value: "food", label: "Food & Cuisine" },
-    { value: "shopping", label: "Shopping" },
   ],
   native: [
     { value: "indian", label: "Indian" },
@@ -102,3 +107,41 @@ export const preferences = {
     { value: "sikh", label: "Sikh" },
   ],
 };
+
+export const activityOptions = [
+  "Hiking",
+  "Photography",
+  "Food Tours",
+  "Nightlife",
+  "Rafting",
+  "Beach Activities",
+  "Adventure Sports",
+  "Cultural Sites",
+  "Stargazing",
+  "Shopping",
+  "Museums",
+  "Nature Tours",
+  "City Tours",
+  "Spa",
+  "Concerts",
+  "Snowboarding",
+  "Historical Walks",
+  "Volunteering",
+  "Swimming",
+  "Brewery Tours",
+  "Fishing/Boating",
+  "Art Galleries",
+  "Zoos/Aquariums",
+];
+
+export const tripTypes = [
+  { id: "Adventure", label: "Adventure", icon: Mountain },
+  { id: "Relaxation", label: "Relaxation", icon: Coffee }, // Or 'Bed', 'Sailboat'
+  { id: "Cultural", label: "Cultural", icon: Landmark }, // Or 'BookOpen', 'Museum'
+  { id: "Luxury", label: "Luxury", icon: Crown }, // Or 'Diamond'
+  { id: "Road Trip", label: "Road Trip", icon: Car }, // Or 'Map'
+  { id: "Nature", label: "Nature", icon: Leaf }, // Or 'Tent', 'Trees'
+  { id: "Budget", label: "Budget", icon: Wallet }, // Or 'Wallet'
+  { id: "Romantic", label: "Romantic", icon: Heart }, // Or 'Ring'
+  { id: "Business", label: "Business", icon: Briefcase }, // Or 'Users'
+];

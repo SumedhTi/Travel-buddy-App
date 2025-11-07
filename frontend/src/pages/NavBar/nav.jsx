@@ -37,7 +37,7 @@ const NavBar = ({ components }) => {
       label: "Join a trip",
       icon: Users,
       active: false,
-      route: "/home",
+      route: "/swipe",
     },
     {
       id: "create",
@@ -62,9 +62,10 @@ const NavBar = ({ components }) => {
     },
     {
       id: "chats",
-      label: "Group chats",
+      label: "Chats",
       icon: MessageSquare,
       active: false,
+      route: "/chats",
     },
     { id: "itineraries", label: "Itineraries", icon: Book, active: false },
     { id: "Profile", label: "Profile", icon: User2, active: false ,route:"/profile" },

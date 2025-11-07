@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useUser } from "../../GlobalUserContext";
 import { Edit2, MessageCircleMore, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import fetchData from "../../request";
 
 const ProfilePage = ({ userId }) => {
   const { state, dispatch } = useUser();
@@ -28,81 +29,34 @@ const ProfilePage = ({ userId }) => {
     bio: "",
     photo:null,
     locationPref:[],
-    natureType:[],
+    intrestTripType:[],
     interestType:[],
   });
   
   
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await fetch(BASE + `/profile?id=${userId || state.user.id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Origin: "*",
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-          },
-        });
-        const data = await res.json();
-        if (res.ok) {   
-          if (data._id != state.user.id){
-            setIsMyPage(false);
-          } else{
-            setIsMyPage(true);
-          }
-          setUserData(data);
-        } else if (res.status === 403) {
-          toast.error("Token Invalid Login Again");
-          setTimeout(() => {
-            sessionStorage.removeItem("userToken");
-            dispatch({ type: "CLEAR_USER" });
-            navigate("/", { replace: true });
-          }, 2000);
-        } else {
-          toast.error("Someting went wrong");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    const fetchProfileData = async () => {
+      const data = await fetchData(`/profile?id=${userId || state.user.id}`, "GET", navigate, dispatch);
+      if (data._id !== state.user.id){
+        setIsMyPage(false);
+      } else{
+        setIsMyPage(true);
       }
+      setUserData(data);
     };
-    fetchUserData();
-  }, []);
+    fetchProfileData();
+  }, [userId, state.user.id, navigate, dispatch]);
   
   const updateProfile = async () => {
-    try {
-      const response = await fetch(BASE + "/updateProfile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Origin: "*",
-          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-        },
-        body: JSON.stringify(userData),
-      });
-      if(response.ok){
-        toast.success("Profile Updated");
-      } else if (response.status === 403) {
-        toast.error("Token Invalid Login Again");
-        setTimeout(() => {
-          sessionStorage.removeItem("userToken");
-          dispatch({ type: "CLEAR_USER" });
-          navigate("/login", { replace: true });
-        }, 3000);
-      } else {
-        toast.error("Someting went wrong");
-      }
-    } catch (error) {
-      toast.error("Some Error Occured");
-      console.error("Error updating profile:", error);
-    }
+    const response = await fetchData("/updateProfile", "PUT", navigate, dispatch, userData); 
+    if(response){
+      toast.success("Profile Updated");
+    } 
   };
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) return;    
 
     const formData = new FormData();
     formData.append("profilePhoto", file);
@@ -146,31 +100,11 @@ const ProfilePage = ({ userId }) => {
   }
   
   const handleDeleteButton = async () => {
-    try {
-      const res = await fetch(BASE + "/deletephoto", {
-        method: "DELETE",
-        headers: {
-          Origin: "*",
-          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-        },
-      });
-      const data = await res.json();
-      if(res.ok){
-        toast.success("Profile Photo Deleted");
-        setUserData(data.userData);
-        window.location.reload();
-      } else if (res.status === 403) {
-        toast.error("Token Invalid Login Again");
-        setTimeout(() => {
-          sessionStorage.removeItem("userToken");
-          dispatch({ type: "CLEAR_USER" });
-          navigate("/login", { replace: true });
-        }, 3000);
-      } else {
-        toast.error("Someting went wrong");
-      }
-    } catch (err) {
-      console.error(err);
+    const res = await fetchData("/deletephoto", "DELETE", navigate, dispatch);
+    if(res){
+      toast.success("Profile Photo Deleted");
+      setUserData(res.userData);
+      window.location.reload();
     }
   }
 
@@ -415,7 +349,7 @@ const ProfilePage = ({ userId }) => {
           {/* nature */}
           <div className={styles.activitiesGrid}>
           <label className={styles.formLabel}>Your Nature </label>
-            {userData.natureType.map((activity) => (
+            {userData.intrestTripType.map((activity) => (
               <button
                 key={activity}
                 type="button"

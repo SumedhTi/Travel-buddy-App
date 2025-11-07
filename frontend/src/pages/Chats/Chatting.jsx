@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import { socketBase } from "../../../api";
 import { useUser } from "../../GlobalUserContext";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRef } from "react";
 import styles from "./Chatting.module.css";
+import { ArrowLeft } from "lucide-react";
 import socket from "../../socket";
 
-function Chat({ setActiveChatId }) {
+function Chatting({ setActiveChatId, otherUser, onBack }) {
   const navigate = useNavigate();
   const { state, dispatch } = useUser();
   const userId = state.user.id;
-  const { otherUserId } = useParams();
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const chatRef = useRef(null);
+  const otherUserId = otherUser._id;
+
 
   // generate a consistent room id
   const chatId = [userId, otherUserId].sort().join("_");
@@ -51,7 +52,6 @@ function Chat({ setActiveChatId }) {
 
   useEffect(() => {
     setActiveChatId(chatId); // mark this chat active
-    return () => setActiveChatId(null); // clear when leaving
   }, [chatId, setActiveChatId]);
 
   useEffect(() => {
@@ -60,16 +60,17 @@ function Chat({ setActiveChatId }) {
     }
     // join room
     if (chatId) {
-      console.log("Joining room");
       socket.emit("joinRoom", chatId);
     }
-
-    getPreviousChats();
-
+    
     // listen for new messages
     socket.on("receiveMessage", (msg) => {
       setChat((prev) => [...prev, msg]);
     });
+    
+    if (chatId) {
+      getPreviousChats();
+    }
 
     return () => {
       socket.off("receiveMessage");
@@ -95,13 +96,18 @@ function Chat({ setActiveChatId }) {
 
   return (
     <div className={styles.chatContainer}>
-      <div className={styles.chatHeader}>Chat with {otherUserId}</div>
+      <div className={styles.chatHeader}>
+        <button className={styles.backButton} onClick={onBack}>
+          <ArrowLeft />
+        </button>
+        <span>Chat with {otherUser.name}</span>
+      </div>
 
       <div className={styles.chatMessages} ref={chatRef}>
         {chat.map((msg, i) => (
           <div
             key={i}
-            className={`${styles.chatBubble} ${msg.sender === userId ? "me" : "them"}`}
+            className={`${styles.chatBubble} ${msg.sender === userId ? styles.me : styles.them}`}
           >
             {msg.text}
           </div>
@@ -120,4 +126,4 @@ function Chat({ setActiveChatId }) {
   );
 }
 
-export default Chat;
+export default Chatting;

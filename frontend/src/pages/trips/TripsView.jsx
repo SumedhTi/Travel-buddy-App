@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styles from "./TripsView.module.css";
 import { ChevronDown, ChevronUp, Edit2Icon, Heart, Trash2 } from "lucide-react";
-import { BASE } from "../../../api";
 import { toast } from "react-toastify";
 import { useUser } from "../../GlobalUserContext";
+import { useNavigate } from "react-router-dom";
+import fetchData from "../../request.js";
 
 const ActivityTag = ({ children }) => {
   return <span className={styles.activityTag}>{children}</span>;
@@ -12,36 +13,15 @@ const ActivityTag = ({ children }) => {
 const TripsView = () => {
   const [openTripId, setOpenTripId] = useState(null);
   const [Trips, setTrips] = useState([]);
-  const {state, dispatch} = useUser();
+  const { state, dispatch } = useUser();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTripData = async () => {
-      try {
-        const res = await fetch(BASE + `/trip`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Origin: "*",
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-          },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setTrips(data);
-        } else if (res.status === 403) {
-          toast.error("Token Invalid Login Again");
-          setTimeout(() => {
-            sessionStorage.removeItem("userToken");
-            dispatch({ type: "CLEAR_USER" });
-            navigate("/", { replace: true });
-          }, 2000);
-        } else {
-          toast.error("Someting went wrong");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
+      const res = await fetchData(`/trip`, "GET", navigate, dispatch);  
+      if (res) {
+        setTrips(res);
+      };
     };
     fetchTripData();
   }, []);
@@ -50,14 +30,21 @@ const TripsView = () => {
     setOpenTripId(openTripId === tripId ? null : tripId);
   };
 
-  const handleDelete = (tripId) => {
-    console.log(`Deleting trip ID: ${tripId}`);
-    alert(`Trip ${tripId} deleted (mock action).`);
+  const handleDelete = async (tripId) => {
+    const res = await fetchData(`/trip/${tripId}`, "DELETE", navigate, dispatch);
+    if (res) {
+      setTrips((prevTrips) => prevTrips.filter((trip) => trip._id !== tripId));
+      toast.info("Trip deleted successfully!");
+    };
   };
 
   const handleEdit = (tripId) => {
-    console.log(`Editing trip ID: ${tripId}`);
-    alert(`Navigating to edit form for trip ${tripId} (mock action).`);
+    navigate("/AddTrip", {state: {tripId}})
+  };
+
+  const handleLiked = (tripId) => {
+    console.log(`Viewing likes for trip ID: ${tripId}`);
+    navigate("/swipe", {state: {tripId}})
   };
 
   return (
@@ -74,7 +61,13 @@ const TripsView = () => {
               >
                 <div className={styles.summaryInfo}>
                   <div className={styles.dateRange}>
-                    {new Date(trip.travelDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })};
+                    {new Date(trip.travelDate).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                    ;
                   </div>
                   <div className={styles.location}>
                     <span className={styles.label}>Destination:</span>{" "}
@@ -141,7 +134,7 @@ const TripsView = () => {
                     className={`${styles.actionButton}`}
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent card from toggling
-                      handleEdit(trip.id);
+                      handleLiked(trip._id);
                     }}
                     title="View Likes"
                   >
@@ -152,7 +145,7 @@ const TripsView = () => {
                       className={`${styles.actionButton} ${styles.deleteButton}`}
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent card from toggling
-                        handleDelete(trip.id);
+                        handleDelete(trip._id);
                       }}
                       title="Delete Trip"
                     >
@@ -162,7 +155,7 @@ const TripsView = () => {
                       className={`${styles.actionButton} ${styles.editButton}`}
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent card from toggling
-                        handleEdit(trip.id);
+                        handleEdit(trip._id);
                       }}
                       title="Edit Trip"
                     >

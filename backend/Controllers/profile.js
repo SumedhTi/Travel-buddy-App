@@ -31,7 +31,7 @@ export const updateProfile = async (req, res) => {
       bio,
       language,
       locationPref,
-      natureType,
+      intrestTripType,
       interestType,
       password
     } = req.body;
@@ -51,7 +51,7 @@ export const updateProfile = async (req, res) => {
         bio: bio || "",
         language,
         locationPref,
-        natureType,
+        intrestTripType,
         interestType,
         password:hashedPassword
       },

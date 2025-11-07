@@ -1,91 +1,6 @@
-import { User, Trips } from "../Modules/Schema.js"; // Adjust the import path
+import { User, Trips } from "../Modules/Schema.js";
 
-// 🧠 Helper function to calculate similarity
-const calculateSimilarity = (user, otherUser, userTrips, otherTrips) => {
-  let score = 0;
-
-  // Location preference match
-  const commonLocations =
-    user.locationPref?.filter((loc) => otherUser.locationPref?.includes(loc)) || [];
-  score += commonLocations.length * 2;
-
-  // Nature type match
-  const commonNature =
-    user.natureType?.filter((n) => otherUser.natureType?.includes(n)) || [];
-  score += commonNature.length;
-
-  // Interest type match
-  const commonInterests =
-    user.interestType?.filter((i) => otherUser.interestType?.includes(i)) || [];
-  score += commonInterests.length * 1.5;
-
-  // Trip data match
-  if (userTrips && otherTrips) {
-    const userTripTypes = userTrips.flatMap((t) => t.tripType || []);
-    const otherTripTypes = otherTrips.flatMap((t) => t.tripType || []);
-    const commonTripTypes = userTripTypes.filter((t) =>
-      otherTripTypes.includes(t)
-    );
-    score += commonTripTypes.length * 2;
-
-    const userActivities = userTrips.flatMap((t) => t.activities || []);
-    const otherActivities = otherTrips.flatMap((t) => t.activities || []);
-    const commonActivities = userActivities.filter((a) =>
-      otherActivities.includes(a)
-    );
-    score += commonActivities.length;
-  }
-
-  return score;
-};
-
-// 📍 Main Recommendation Function
-export const getRecommendations = async (req, res) => {
-  try {
-    const userId = req.user.id; // you get this from JWT middleware
-
-    // Get the current user and their trips
-    const user = await User.findById(userId).lean();
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const userTrips = await Trips.find({ createdBy: userId }).lean();
-
-    // Get all other users
-    const allUsers = await User.find({ _id: { $ne: userId } }).lean();
-
-    const recommendations = [];
-
-    for (const otherUser of allUsers) {
-      const otherTrips = await Trips.find({ createdBy: otherUser._id }).lean();
-      const similarityScore = calculateSimilarity(user, otherUser, userTrips, otherTrips);
-
-      if (similarityScore > 0) {
-        recommendations.push({
-          userId: otherUser._id,
-          name: otherUser.name,
-          gender: otherUser.gender,
-          locationPref: otherUser.locationPref,
-          natureType: otherUser.natureType,
-          interestType: otherUser.interestType,
-          photo: otherUser.photo,
-          similarityScore,
-        });
-      }
-    }
-
-    // Sort by similarity score (descending)
-    recommendations.sort((a, b) => b.similarityScore - a.similarityScore);
-
-    res.status(200).json(recommendations);
-  } catch (error) {
-    console.error("Error fetching recommendations:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-
-
-
+//RETURN ARRAY
 // [
 //     {
 //       _id:"",
@@ -104,3 +19,91 @@ export const getRecommendations = async (req, res) => {
 //       photo:""
 //     },
 //   ]
+
+export const getRecommendations = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // 1. Get the current user's preferences
+    const currentUser = await User.findById(userId).lean();
+    if (!currentUser) {
+      return res.status(404).json({ message: "Current user not found." });
+    }
+
+    const { interestType = [], intrestTripType = [], locationPref = [] } = currentUser;
+
+    // 2. Get all trips not created by the current user and not already liked by them
+    const allTrips = await Trips.find({
+      createdBy: { $ne: userId },
+      likedBy: { $nin: [userId] },
+    })
+      .populate("createdBy", "name dob native photo email") // Populate creator's info
+      .lean();
+
+    // 3. Score and sort trips
+    const recommendedTrips = allTrips
+      .map((trip) => {
+        let score = 0;
+
+        // Score based on matching activities (interestType)
+        if (trip.activities && interestType.length > 0) {
+          const matchingActivities = trip.activities.filter((activity) =>
+            interestType.includes(activity)
+          );
+          score += matchingActivities.length * 3; // Higher weight for activities
+        }
+
+        // Score based on matching trip types (intrestTripType)
+        if (trip.tripType && intrestTripType.length > 0) {
+          const matchingTripTypes = trip.tripType.filter((type) =>
+            intrestTripType.includes(type)
+          );
+          score += matchingTripTypes.length * 2;
+        }
+
+        // Score based on matching destination (locationPref)
+        if (trip.destinationType && locationPref.includes(trip.destinationType)) {
+          score += 5; // High score for exact destination match
+        }
+
+        return { ...trip, score };
+      })
+      .filter((trip) => trip.score > 0) // Only include trips with a score > 0
+      .sort((a, b) => b.score - a.score); // Sort by score descending
+
+    // 4. Format the output
+    const formattedRecommendations = recommendedTrips.map((trip) => {
+      console.log(trip);
+      
+      const creator = trip.createdBy;
+      let age = "N/A";
+      if (creator.dob) {
+        const ageDifMs = Date.now() - new Date(creator.dob).getTime();
+        const ageDate = new Date(ageDifMs);
+        age = Math.abs(ageDate.getUTCFullYear() - 1970);
+      }
+
+      return {
+        _id: trip._id,
+        name: creator.name,
+        age: age,
+        location: creator.native,
+        tripType: trip.tripType,
+        destination: trip.destination,
+        groupSize: trip.groupSize,
+        activities: trip.activities,
+        contact: creator.email,
+        totalCost: trip.totalCost,
+        travelDate: trip.travelDate,
+        budget: trip.budget,
+        notes: trip.notes,
+        photo: creator.photo, // Assuming photo is a URL or base64 string
+      };
+    });
+
+    res.status(200).json(formattedRecommendations);
+  } catch (error) {
+    console.error("Error getting recommendations:", error);
+    res.status(500).json({ message: "Failed to get recommendations" });
+  }
+};

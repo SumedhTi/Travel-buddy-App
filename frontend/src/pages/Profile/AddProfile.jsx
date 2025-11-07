@@ -3,9 +3,10 @@ import styles from "./AddProfile.module.css";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../GlobalUserContext";
 import CreatableSelect from "react-select/creatable";
-import { customStyles, preferences } from "./var";
+import { activityOptions, customStyles, preferences, tripTypes } from "./var";
 import { BASE } from "../../../api";
 import { toast } from "react-toastify";
+import fetchData from "../../request";
 
 const AddProfile = () => {
   const { state, dispatch } = useUser();
@@ -15,7 +16,7 @@ const AddProfile = () => {
   const [selectedLifestyle, setSelectedLifestyle] = useState(new Set());
   const [errors, setErrors] = useState({});
   const [locationPref, setLocationPref] = useState([]);
-  const [natureType, setNatureType] = useState([]);
+  const [intrestTripType, setIntrestTripType] = useState([]);
   const [interestType, setInterestType] = useState([]);
   const [native, setNative] = useState([]);
   const [language, setLanguage] = useState([]);
@@ -171,12 +172,8 @@ const AddProfile = () => {
       drinking: selectedLifestyle.has("drinking"),
       smoking: selectedLifestyle.has("smoking"),
       driving: selectedLifestyle.has("driving"),
-      natureType: natureType.map((i) => {
-        return i.value;
-      }),
-      interestType: interestType.map((i) => {
-        return i.value;
-      }),
+      intrestTripType: intrestTripType,
+      interestType: interestType,
       locationPref: locationPref.map((i) => {
         return i.value;
       }),
@@ -187,34 +184,11 @@ const AddProfile = () => {
       native: native.value,
     };
 
-    try {
-      const res = await fetch(BASE + "/updateProfile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Origin: "*",
-          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-        },
-        body: JSON.stringify(finalData),
-      });
-      if (res.ok) {
-        toast.success("Profile Update Complete");
-        navigate("/dashboard");
-      } else if (res.status === 403) {
-        toast.error("Token Invalid Login Again");
-        setTimeout(() => {
-          sessionStorage.removeItem("userToken");
-          dispatch({ type: "CLEAR_USER" });
-          navigate("/login", { replace: true });
-        }, 3000);
-      } else {
-        toast.error("Someting went wrong");
-      }
-    } catch (err) {
-      toast.error("Somting Went Wrong");
-      console.log(err);
-    }
+    const res = await fetchData("/updateProfile", "PUT", navigate, dispatch, finalData);
+    if (res) {
+      toast.success("Profile Update Complete");
+      navigate("/dashboard");
+    } 
   };
 
   const FloatingParticles = () => {
@@ -659,11 +633,30 @@ const AddProfile = () => {
                       id="bio"
                       value={formData.bio || ""}
                       onChange={(e) => handleInputChange("bio", e.target.value)}
-                      placeholder="Tell us about your travel style, favorite destinations, interests, and what you're looking for in a travel buddy. Are you into adventure sports, cultural experiences, food tours, or relaxing beach getaways? The more you share, the better we can match you with compatible travelers!"
+                      placeholder="Tell us about your travel style, favorite destinations, interests."
                       className={`${styles.inputArea} ${
                         errors.name ? styles.error : ""
                       } `}
                     />
+                  </div>
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                    <label htmlFor="locationPref">Location Prefernces</label>
+                    <CreatableSelect
+                      options={preferences.locationPref}
+                      isMulti
+                      closeMenuOnSelect={false}
+                      hideSelectedOptions={false}
+                      onChange={(selected) => setLocationPref(selected)}
+                      value={locationPref}
+                      placeholder="Places You Like To Visit"
+                      styles={customStyles}
+                      menuPortalTarget={document.body}
+                    />
+                    {errors.locationPref && (
+                      <div className={styles.errorMessage}>
+                        {errors.locationPref}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -680,56 +673,48 @@ const AddProfile = () => {
                   </div>
                   <div className={styles.formGrid}>
                     <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                      <label htmlFor="locationPref">Location Prefernces</label>
-                      <CreatableSelect
-                        options={preferences.locationPref}
-                        isMulti
-                        closeMenuOnSelect={false}
-                        hideSelectedOptions={false}
-                        onChange={(selected) => setLocationPref(selected)}
-                        value={locationPref}
-                        placeholder="Select types..."
-                        styles={customStyles}
-                        menuPortalTarget={document.body}
-                      />
-                      {errors.locationPref && (
+                      <label htmlFor="tripType">Type Of Trip You Looking For</label>
+                      <div className={styles.tripTypeButtons}>
+                        {tripTypes.map((type) => (
+                          <button
+                            key={type.id}
+                            type="button"
+                            className={`${styles.tripTypeButton} ${
+                              intrestTripType.includes(type.id)
+                                ? styles.tripTypeActive
+                                : ""
+                            }`}
+                            onClick={() => setIntrestTripType([ ...intrestTripType, type.id ])}
+                          >
+                            <type.icon size={16} />
+                            {type.label}
+                          </button>
+                        ))}
+                      </div>
+                      {errors.intrestTripType && (
                         <div className={styles.errorMessage}>
-                          {errors.locationPref}
-                        </div>
-                      )}
-                    </div>
-                    <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                      <label htmlFor="natureType">Your Nature</label>
-                      <CreatableSelect
-                        options={preferences.natureType}
-                        isMulti
-                        closeMenuOnSelect={false}
-                        hideSelectedOptions={false}
-                        onChange={(selected) => setNatureType(selected)}
-                        value={natureType}
-                        placeholder="Select types..."
-                        styles={customStyles}
-                        menuPortalTarget={document.body}
-                      />
-                      {errors.natureType && (
-                        <div className={styles.errorMessage}>
-                          {errors.natureType}
+                          {errors.intrestTripType}
                         </div>
                       )}
                     </div>
                     <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                       <label htmlFor="interestType">Your Intrests</label>
-                      <CreatableSelect
-                        options={preferences.interestType}
-                        isMulti
-                        closeMenuOnSelect={false}
-                        hideSelectedOptions={false}
-                        onChange={(selected) => setInterestType(selected)}
-                        value={interestType}
-                        placeholder="Select types..."
-                        styles={customStyles}
-                        menuPortalTarget={document.body}
-                      />
+                      <div className={styles.activitiesGrid}>
+                        {activityOptions.map((activity) => (
+                          <button
+                            key={activity}
+                            type="button"
+                            className={`${styles.activityButton} ${
+                              interestType.includes(activity)
+                                ? styles.activityActive
+                                : ""
+                            }`}
+                            onClick={() => setInterestType([ ...interestType, activity ])}
+                          >
+                            {activity}
+                          </button>
+                        ))}
+                      </div>
                       {errors.interestType && (
                         <div className={styles.errorMessage}>
                           {errors.interestType}

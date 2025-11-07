@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import styles from "./LoginPage.module.css";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../GlobalUserContext.jsx";
+import fetchData from "../../request.js";
 
 const SignupSection = ({ setstate }) => {
   const [password, setPassword] = useState("");
@@ -60,37 +61,17 @@ const SignupSection = ({ setstate }) => {
       return;
     }
 
-    try {
-      const res = await fetch(BASE + "/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: firstName + " " + lastName,
-          email: email,
-          password,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Signup successful!");
-        localStorage.setItem("userToken", data.token);
-        dispatch({ type: "SET_USER", payload: data.user });
-      } else {
-        toast.error(data.message);
-      }
-    } catch (err) {
-      console.log(err);
-      
-      toast.error("Signup failed. Please try again.");
-    }
+    const data = await fetchData("/register", "POST", navigate, dispatch, {
+      username: firstName + " " + lastName,
+      email: email,
+      password,
+    }); 
+    if (data) {
+      toast.success("Signup successful!");
+      localStorage.setItem("userToken", data.token);
+      dispatch({ type: "SET_USER", payload: data.user });
+    } 
   };
-
-  //   const headers = {
-  //   "Content-Type": "application/json",
-  //   Accept: "application/json",
-  //   Origin: "*",
-  //   Authorization: `Bearer ${localStorage.getItem('userToken')}`,
-  // };
 
   return (
     <form className={styles.formContent} onSubmit={handleSignup}>

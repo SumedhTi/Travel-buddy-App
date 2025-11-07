@@ -1,4 +1,4 @@
-import { Message, Notifications } from "../Modules/Schema.js";
+import { Message, Notifications, User } from "../Modules/Schema.js";
 
 const users = {}; // userId -> socketId
 
@@ -20,10 +20,9 @@ export const chatHandler = (io) => {
         io.to(socket.id).emit("newNotification", note);
       });
 
-      // Mark as delivered
-      await Notifications.updateMany(
-        { userId, delivered: false },
-        { $set: { delivered: true } }
+      // Delete delivered notifications
+      await Notifications.deleteMany(
+        { userId, delivered: false }
       );
     });
 
@@ -71,4 +70,47 @@ export const chatHandler = (io) => {
       }
     });
   });
+};
+
+export const addChat = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { receiver } = req.body;
+
+    const updatedUser1 = await User.findByIdAndUpdate(
+      { _id: userId },
+      { $addToSet: { avalableChats: receiver } }
+    );
+
+    const updatedUser2 = await User.findByIdAndUpdate(
+      { _id: receiver },
+      { $addToSet: { avalableChats: userId } }
+    );
+
+    if (!updatedUser1 || !updatedUser2) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "Chat Added successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update" });
+    console.log(error);
+    
+  }
+}
+
+export const getChats = async (req, res) => {
+  try{
+    const userId = req.user.id;
+    const user = await User.findById(userId).select("avalableChats").populate("avalableChats", "name photo").lean();
+
+    if(!user) return res.status(404).json({message: "User not found"});
+
+    const avalableChats = user.avalableChats;
+    res.status(200).json(avalableChats);
+  } catch (error) {
+    console.log(error);
+    
+    res.status(500).json({ message: "Failed to get chats" });
+  }
 };

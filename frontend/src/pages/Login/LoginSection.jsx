@@ -4,6 +4,7 @@ import { BASE } from "../../../api.js";
 import { toast } from "react-toastify";
 import { useUser } from "../../GlobalUserContext.jsx";
 import styles from "./LoginPage.module.css";
+import fetchData from "../../request.js";
 
 const LoginSection = ({ setstate }) => {
   const [email, setEmail] = useState("");
@@ -24,24 +25,12 @@ const LoginSection = ({ setstate }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    try {
-      const res = await fetch(BASE + "/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Login Successful");
-        setIsUserNew(data.isUserNew);
-        localStorage.setItem("userToken", data.token);
-        dispatch({ type: "SET_USER", payload: data.user });
-      } else {
-        toast.error(data.message);
-      }
-    } catch (err) {
-      toast.error("Login failed. Please try again.");
+    const res = await fetchData("/login", "POST", navigate, dispatch, { email, password });
+    if (res) {
+      toast.success("Login Successful");
+      setIsUserNew(res.isUserNew);
+      localStorage.setItem("userToken", res.token);
+      dispatch({ type: "SET_USER", payload: res.user });
     }
   };
 
@@ -71,24 +60,13 @@ const LoginSection = ({ setstate }) => {
   }, []);
 
   const handleGoogleResponse = async (response) => {
-    try {
-      const res = await fetch(BASE + "/auth/google/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_token: response.credential }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Google Login Successful");
-        setIsUserNew(data.isUserNew);
-        localStorage.setItem("userToken", data.token);
-        dispatch({ type: "SET_USER", payload: data.user });
-      } else {
-        toast.error("Google login failed.");
-      }
-    } catch (err) {
-      toast.error("Google login failed. Please try again.");
-    }
+    const data = await fetchData("/auth/google/token", "POST", navigate, dispatch, { id_token: response.credential });
+    if (data) {
+      toast.success("Google Login Successful");
+      setIsUserNew(data.isUserNew);
+      localStorage.setItem("userToken", data.token);
+      dispatch({ type: "SET_USER", payload: data.user });
+    } 
   };
 
   return (

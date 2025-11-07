@@ -13,5 +13,11 @@
 
 body {
   margin: 0;
+  overflow: hidden; /* Prevents the body from scrolling */
 }
 
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

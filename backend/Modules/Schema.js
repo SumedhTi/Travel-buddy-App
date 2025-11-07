@@ -16,18 +16,19 @@ const userSchema = new mongoose.Schema({
   bio: { type: String },
   language: { type: Array },
   locationPref: { type: Array },
-  natureType: { type: Array },
+  intrestTripType: { type: Array },
   interestType: { type: Array },
   password: { type: String },
   googleId: { type: String },
   photo: { data: Buffer, contentType: String },
+  avalableChats: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   createdAt: { type: Date, default: Date.now },
 });
 
 const messageSchema = new mongoose.Schema({
   chatId: String, // unique room id (e.g. user1_user2)
-  sender: String, // userId or email
-  receiver: String, // userId or email
+  sender: {type: mongoose.Schema.Types.ObjectId, ref: "User"}, // userId or email
+  receiver: {type: mongoose.Schema.Types.ObjectId, ref: "User"}, // userId or email
   text: String,
   createdAt: { type: Date, default: Date.now },
 });
@@ -41,9 +42,10 @@ const notificationSchema = new mongoose.Schema({
 });
 
 const tripSchema = new mongoose.Schema({
-  createdBy: mongoose.Schema.Types.ObjectId,
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   tripType: Array,
   destination: String,
+  destinationType: String,
   groupSize: Number,
   activities: Array,
   totalCost: Number,
@@ -52,19 +54,19 @@ const tripSchema = new mongoose.Schema({
   notes: String,
   likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
+
 const blogSchema = new mongoose.Schema(
   {
+    authorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    authorName: { type: String },
     content: { type: String, required: true },
     image: { type: String },
-    likes: { type: Number, default: 0 },
     likedBy: [{ type: String }],
   },
   { timestamps: true }
 );
 
-const Blog = mongoose.model("Blog", blogSchema);
-export default Blog
-
+export const Blog = mongoose.model("Blog", blogSchema);
 export const Message = mongoose.model("Message", messageSchema);
 export const Notifications = mongoose.model("Notification", notificationSchema);
 export const User = mongoose.model("User", userSchema);

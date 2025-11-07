@@ -1,72 +1,48 @@
-import React, { useState } from "react";
-import {
-  Save,
-  Coffee,
-  Mountain,
-  Book,
-  Landmark,
-  Crown,
-  Car,
-  Leaf,
-  Wallet,
-  Heart,
-  Briefcase,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Save } from "lucide-react";
 import styles from "./AddTravelDetails.module.css";
 import { toast } from "react-toastify";
 import { BASE } from "../../../api";
+import { activityOptions, customStyles, preferences, tripTypes } from "../Profile/var";
+import CreatableSelect from "react-select/creatable";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useUser } from "../../GlobalUserContext";
+import fetchData from "../../request";
 
 const AddTravelDetails = () => {
+  const location = useLocation();
+  const state = location.state;
   const [formData, setFormData] = useState({
     tripType: [],
     destination: "",
+    destinationType: null,
     groupSize: "",
     activities: [],
     totalCost: "",
     travelDate: "",
     budget: "",
     notes: "",
+    isNew:true,
   });
-
+  const { dispatch } = useUser();
+  const navigate = useNavigate(); // dispatch is already available
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  
+  useEffect(() => {
+    if (state) {
+      const tripId = state.tripId;
+      const fetchTripData = async () => {
+        const data = await fetchData("/trip?id=" + tripId, "GET", navigate, dispatch);
+        data[0].destinationType = preferences.locationPref.find(
+          (item) => item.value === data[0].destinationType
+        );
+        data[0].isNew = false;
+        setFormData(data[0]);
+      };
+      fetchTripData();
+    }
+  }, [state, navigate, dispatch]);
 
-  const tripTypes = [
-    { id: "Adventure", label: "Adventure", icon: Mountain },
-    { id: "Relaxation", label: "Relaxation", icon: Coffee }, // Or 'Bed', 'Sailboat'
-    { id: "Cultural", label: "Cultural", icon: Landmark }, // Or 'BookOpen', 'Museum'
-    { id: "Luxury", label: "Luxury", icon: Crown }, // Or 'Diamond'
-    { id: "Road Trip", label: "Road Trip", icon: Car }, // Or 'Map'
-    { id: "Nature", label: "Nature", icon: Leaf }, // Or 'Tent', 'Trees'
-    { id: "Budget", label: "Budget", icon: Wallet }, // Or 'Wallet'
-    { id: "Romantic", label: "Romantic", icon: Heart }, // Or 'Ring'
-    { id: "Business", label: "Business", icon: Briefcase }, // Or 'Users'
-  ];
-
-  const activityOptions = [
-    "Hiking",
-    "Photography",
-    "Food Tours",
-    "Nightlife",
-    "Rafting",
-    "Beach Activities",
-    "Adventure Sports",
-    "Cultural Sites",
-    "Stargazing",
-    "Shopping",
-    "Museums",
-    "Nature Tours",
-    "City Tours",
-    "Spa",
-    "Concerts",
-    "Snowboarding",
-    "Historical Walks",
-    "Volunteering",
-    "Swimming",
-    "Brewery Tours",
-    "Fishing/Boating",
-    "Art Galleries",
-    "Zoos/Aquariums",
-  ];
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -92,49 +68,32 @@ const AddTravelDetails = () => {
 
   const handleSave = async () => {
     setShowSuccessAnimation(true);
-    try {
-      const response = await fetch(BASE + "/addTrip", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Origin: "*",
-          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-        },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        toast.info("Travel details saved successfully! 🎉");
-      } else if (response.status === 403) {
-        toast.error("Token Invalid Login Again");
-        setTimeout(() => {
-          sessionStorage.removeItem("userToken");
-          dispatch({ type: "CLEAR_USER" });
-          navigate("/login", { replace: true });
-        }, 3000);
-      } else {
-        toast.error("Someting went wrong");
-      }
-    } catch (error) {
-      toast.error("Some Error Occured");
-    } finally {
-      setTimeout(() => {
-        handleReset();
-        setShowSuccessAnimation(false);
-      }, 2000);
-    }
+    const dataToSend = {
+      ...formData,
+      destinationType: formData.destinationType?.value,
+    };
+    const response = await fetchData("/addTrip", "POST", navigate, dispatch, dataToSend);
+    if (response) {
+      toast.info("Travel details saved successfully! 🎉");
+      handleReset();
+    } 
+    setTimeout(() => {
+      setShowSuccessAnimation(false);
+    }, 2000);
   };
 
   const handleReset = () => {
     setFormData({
       tripType: [""],
       destination: "",
+      destinationType:"",
       groupSize: "",
       activities: [],
       totalCost: "",
       travelDate: "",
       budget: "",
       notes: "",
+      isNew:true,
     });
   };
 
@@ -184,7 +143,20 @@ const AddTravelDetails = () => {
                   placeholder="Enter destination"
                 />
               </div>
-
+              {/* Destination Type */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Destination Type</label>
+                <CreatableSelect
+                  options={preferences.locationPref}
+                  closeMenuOnSelect={true}
+                  hideSelectedOptions={false}
+                  onChange={(selected) => handleInputChange("destinationType",selected)}
+                  value={formData.destinationType}
+                  placeholder="Type of destination"
+                  styles={customStyles}
+                  menuPortalTarget={document.body}
+                />
+              </div>
 
               {/* Activities */}
               <div className={styles.formGroup}>

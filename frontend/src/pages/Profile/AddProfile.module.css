@@ -618,6 +618,72 @@ select {
   }
 }
 
+.activitiesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content:space-around;
+  gap: 0.2rem;
+}
+
+.activityButton {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.activityButton:hover {
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.activityActive {
+  background-color: #dbeafe;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  font-weight: 500;
+  transform: translateY(-1px);
+}
+
+.tripTypeButtons {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.tripTypeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.tripTypeButton:hover {
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.tripTypeActive {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 @media (max-width: 1024px) {
   .mainContent {
     flex-direction: column;
