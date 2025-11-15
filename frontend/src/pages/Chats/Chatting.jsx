@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { socketBase } from "../../../api";
 import { useUser } from "../../GlobalUserContext";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRef } from "react";
 import styles from "./Chatting.module.css";
 import { ArrowLeft } from "lucide-react";
 import socket from "../../socket";
 
-function Chatting({ setActiveChatId, otherUser, onBack }) {
+function Chatting({ otherUser, onBack }) {
   const navigate = useNavigate();
   const { state, dispatch } = useUser();
   const userId = state.user.id;
@@ -17,8 +17,6 @@ function Chatting({ setActiveChatId, otherUser, onBack }) {
   const chatRef = useRef(null);
   const otherUserId = otherUser._id;
 
-
-  // generate a consistent room id
   const chatId = [userId, otherUserId].sort().join("_");
 
   const getPreviousChats = async () => {
@@ -49,10 +47,6 @@ function Chatting({ setActiveChatId, otherUser, onBack }) {
       toast.error("Unknone Error Occured");
     }
   };
-
-  useEffect(() => {
-    setActiveChatId(chatId); // mark this chat active
-  }, [chatId, setActiveChatId]);
 
   useEffect(() => {
     if (userId) {

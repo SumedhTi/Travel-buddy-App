@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../../GlobalUserContext";
 import Card from './Card';
 import fetchData from "../../request";
+import { toast } from "react-toastify";
 
 const Swipe = () => {
   const [cards, setCards] = useState([]);
@@ -19,7 +20,6 @@ const Swipe = () => {
     if (tripId){
       const res = await fetchData(`/tripLikes?id=${tripId}`, "GET", navigate, dispatch);
       if (res) {
-        console.log("Fetched data:", res);
         setCards(res);
         setType(1);
       }
@@ -39,17 +39,15 @@ const Swipe = () => {
 
 
   async function handleLike(id) {
+    let res;
     if(type === 0){
-      const res = await fetchData(`/likeTrip`, "POST", navigate, dispatch, { tripId:id }); 
-      if (res) {
-        console.log("Fetched cards:", res);
-      } 
+      res = await fetchData(`/likeTrip`, "POST", navigate, dispatch, { tripId:id }); 
     } else {
-      const res = await fetchData("/addChat", "POST", navigate, dispatch, { receiver: id }); 
-      if (res) {
-        console.log("Fetched cards:", res);
-      } 
+      res = await fetchData("/addChat", "POST", navigate, dispatch, { receiver: id }); 
     }
+    if (!res) {
+      toast.error("Network Error Please Try Again Later")
+    } 
   }
 
   const handleSwipe = (card) => {

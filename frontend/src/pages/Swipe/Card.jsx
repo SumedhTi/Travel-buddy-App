@@ -44,39 +44,41 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
   const x = useMotionValue(0);
   const opacity = useTransform(x, [-150, 0, 150], [0, 1, 0]);
   const rotate = useTransform(x, [-150, 150], [-18, 18]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [swipeDirection, setSwipeDirection] = useState(null);
   const startPos = useRef({ x: 0, y: 0 });
+
   let age;
+  let formattedDate;
   if (type === 1) {
     const ageDifMs = Date.now() - new Date(card.dob).getTime();
     const ageDate = new Date(ageDifMs);
     age = Math.abs(ageDate.getUTCFullYear() - 1970);
+  } else{
+    const dateObject = new Date(card.travelDate);
+    const day = String(dateObject.getDate()).padStart(2, '0');
+    const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+    const fullYear = dateObject.getFullYear();
+    const year = String(fullYear);
+    formattedDate = `${day}/${month}/${year}`;
   }
-  
 
   const handleDragEnd = (event, info) => {
     const offsetX = info.offset.x;
     if (offsetX > 200) {
-      console.log("Card swiped right");
-      onSwipe(card, "right");
+      ("Card swiped right");
+      handleLike(card._id)
+      onSwipe(card);
     } else if (offsetX < -200) {
-      console.log("Card swiped left");
-      onSwipe(card, "left");
+      onSwipe(card);
     }
-    x.set(0); // reset card back if not swiped enough
+    x.set(0);
+    setSwipeDirection(null);
   };
 
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
+  const handleDrag = (event, info) => {
+    const deltaX = info.offset.x; 
+    const deltaY = info.offset.y;
 
-    const deltaX = e.clientX - startPos.current.x;
-    const deltaY = e.clientY - startPos.current.y;
-
-    setDragOffset({ x: deltaX, y: deltaY });
-
-    // Determine swipe direction
     if (Math.abs(deltaX) > 50) {
       setSwipeDirection(deltaX > 0 ? "right" : "left");
     } else {
@@ -84,26 +86,8 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
     }
   };
 
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    startPos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseUp = () => {
-    if (!isDragging) return;
-
-    setIsDragging(false);
-
-    if (Math.abs(dragOffset.x) > 150) {
-      if (dragOffset.x > 0) {
-        handleLike(card._id);
-      } else {
-        // handleReject(card._id);
-      }
-    }
-
-    setDragOffset({ x: 0, y: 0 });
-    setSwipeDirection(null);
+  const handleDragStart = (event, info) => {
+    startPos.current = { x: info.point.x, y: info.point.y };
   };
 
   const getTripTypeIcon = (type) => {
@@ -134,7 +118,6 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
       Snowboarding: Snowflake,
       "Cultural Sites": Landmark,
       "Historical Walks": BookOpen,
-      // Museums: ,
       "Art Galleries": Palette,
       Concerts: Music,
       "City Tours": Building,
@@ -144,12 +127,10 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
       Volunteering: HeartHandshake,
       "Food Tours": Utensils,
       "Brewery Tours": Beer,
-      // Spa: ,
       "Zoos/Aquariums": PawPrint,
     };
 
-    // Fallback icon if the activity is not found
-    return iconMap[interest] || "HelpCircle";
+    return iconMap[interest] || HelpCircle;
   };
 
   if (type === 0) {
@@ -159,16 +140,18 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         whileTap={{ cursor: "grabbing" }}
-        style={{ x, opacity }}
+        style={{ x, opacity, touchAction: "pan-y", }}
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
         {/* Image Container */}
         <div className={styles.imageContainer}>
-          <img src={card.photo} alt={card.name} className={styles.profileImage} />
+          <img
+            src={card.photo}
+            alt={card.name}
+            className={styles.profileImage}
+          />
 
           {/* Swipe Indicators */}
           {swipeDirection === "right" && (
@@ -178,7 +161,9 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
             </div>
           )}
           {swipeDirection === "left" && (
-            <div className={`${styles.swipeIndicator} ${styles.rejectIndicator}`}>
+            <div
+              className={`${styles.swipeIndicator} ${styles.rejectIndicator}`}
+            >
               <X size={40} />
               <span>NOPE</span>
             </div>
@@ -204,7 +189,7 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
             </div>
             <div className={styles.tripitem}>
               <Calendar size={16} />
-              <span>{card.travelDate}</span>
+              <span>{formattedDate}</span>
             </div>
             <div className={styles.tripitem}>
               <Users size={16} />
@@ -227,7 +212,6 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
             </div>
           </div>
 
-
           <div className={styles.additionalinfo}>
             <div className={styles.infogrid}>
               <div className={styles.infoitem}>
@@ -236,45 +220,49 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
               </div>
               <div className={styles.infoitem}>
                 <span className={styles.label}>Languages:</span>
-                {/* <span className="value">{card.language?.join(", ")}</span> */}
+                <span className="value">{card.language?.join(", ")}</span>
               </div>
               <div className={styles.infoitem}>
                 <span className={styles.label}>Styled:</span>
                 <div className={styles.activitiesTag}>
                   {card.activities?.map((trait, index) => {
                     const IconCom = getInterestIcon(trait);
-                    return(<span key={index} className={styles.activityTag}>
-                      <IconCom size={14} /> {trait}
-                    </span>)
+                    return (
+                      <span key={index} className={styles.activityTag}>
+                        <IconCom size={14} /> {trait}
+                      </span>
+                    );
                   })}
                 </div>
               </div>
-          <div className={styles.biosection}>
-            <p>Notes:</p>
-            <p>{card.notes || "NA"}</p>
-          </div>
+              <div className={styles.biosection}>
+                <p>Notes:</p>
+                <p>{card.notes || "NA"}</p>
+              </div>
             </div>
           </div>
         </div>
       </motion.div>
     );
-  } else{
+  } else {
     return (
       <motion.div
         className={styles.card}
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         whileTap={{ cursor: "grabbing" }}
-        style={{ x, opacity }}
+        style={{ x, opacity, touchAction: "pan-y", rotate }}
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
         {/* Image Container */}
         <div className={styles.imageContainer}>
-          <img src={card.photo} alt={card.name} className={styles.profileImage} />
+          <img
+            src={card.photo}
+            alt={card.name}
+            className={styles.profileImage}
+          />
 
           {/* Swipe Indicators */}
           {swipeDirection === "right" && (
@@ -284,7 +272,9 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
             </div>
           )}
           {swipeDirection === "left" && (
-            <div className={`${styles.swipeIndicator} ${styles.rejectIndicator}`}>
+            <div
+              className={`${styles.swipeIndicator} ${styles.rejectIndicator}`}
+            >
               <X size={40} />
               <span>NOPE</span>
             </div>
@@ -318,7 +308,6 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
             </div>
           </div>
 
-
           <div className={styles.additionalinfo}>
             <div className={styles.infogrid}>
               <div className={styles.infoitem}>
@@ -330,24 +319,26 @@ const Card = ({ card, onSwipe, handleLike, type }) => {
                 <div className={styles.activitiesTag}>
                   {card.interestType?.map((trait, index) => {
                     const IconCom = getInterestIcon(trait);
-                    return(<span key={index} className={styles.activityTag}>
-                      <IconCom size={14} /> {trait}
-                    </span>)
+                    return (
+                      <span key={index} className={styles.activityTag}>
+                        <IconCom size={14} /> {trait}
+                      </span>
+                    );
                   })}
                 </div>
               </div>
               <div className={`${styles.tripdetails} ${styles.long}`}>
                 <div className={`${styles.tripitem} ${styles.long2}`}>
                   <Car size={25} />
-                  <span>{card.driving? "Yes" : "No"}</span>
+                  <span>{card.driving ? "Yes" : "No"}</span>
                 </div>
                 <div className={`${styles.tripitem} ${styles.long2}`}>
                   <BottleWine size={25} />
-                  <span>{card.drinking? "Yes" : "No"}</span>
+                  <span>{card.drinking ? "Yes" : "No"}</span>
                 </div>
                 <div className={`${styles.tripitem} ${styles.long2}`}>
                   <Cigarette size={25} />
-                  <span>{card.smoking? "Yes" : "No"}</span>
+                  <span>{card.smoking ? "Yes" : "No"}</span>
                 </div>
               </div>
               <div className={styles.biosection}>

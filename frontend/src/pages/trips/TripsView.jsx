@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./TripsView.module.css";
 import { ChevronDown, ChevronUp, Edit2Icon, Heart, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
@@ -43,7 +43,6 @@ const TripsView = () => {
   };
 
   const handleLiked = (tripId) => {
-    console.log(`Viewing likes for trip ID: ${tripId}`);
     navigate("/swipe", {state: {tripId}})
   };
 

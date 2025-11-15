@@ -1,14 +1,12 @@
-import React from "react";
 import { BrowserRouter, Routes, Route, Outlet, Navigate  } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
-import { ToastContainer, Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import AddTravelDetails from "./pages/AddDetails/AddTravelDetails";
 import AddProfile from "./pages/Profile/AddProfile";
 import { useUser } from "./GlobalUserContext";
 import NavBar from "./pages/NavBar/nav";
-import Chat from "./pages/Chats/Chatting";
 import socket from "./socket";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -24,7 +22,7 @@ function App() {
 
   const LayoutWithNavbar = () => (
     <NavBar components={<Outlet />} />
-  );
+  );  
 
   useEffect(() => {
     if (state.user != null && typeof state.user.username != "undefined") {
@@ -57,7 +55,7 @@ function App() {
           <Route path="/AddTrip" element={<AddTravelDetails />} />
           <Route path="/AddTrip/:id" element={<AddTravelDetails />} />
           <Route path="/trips" element={<TripsView />} />
-          <Route path="/chats" element={<ChatPage setActiveChatId={setActiveChatId} />} />
+          <Route path="/chats" element={<ChatPage activeChatId={activeChatId} setActiveChatId={setActiveChatId}/>} />
           <Route path="/swipe" element={<Swipe />} />
           <Route path="/blog" element={<BlogFeed />} />
         </Route>

@@ -37,7 +37,7 @@ export const getRecommendations = async (req, res) => {
       createdBy: { $ne: userId },
       likedBy: { $nin: [userId] },
     })
-      .populate("createdBy", "name dob native photo email") // Populate creator's info
+      .populate("createdBy", "name dob native photo email language") // Populate creator's info
       .lean();
 
     // 3. Score and sort trips
@@ -72,9 +72,7 @@ export const getRecommendations = async (req, res) => {
       .sort((a, b) => b.score - a.score); // Sort by score descending
 
     // 4. Format the output
-    const formattedRecommendations = recommendedTrips.map((trip) => {
-      console.log(trip);
-      
+    const formattedRecommendations = recommendedTrips.map((trip) => {      
       const creator = trip.createdBy;
       let age = "N/A";
       if (creator.dob) {
@@ -87,6 +85,7 @@ export const getRecommendations = async (req, res) => {
         _id: trip._id,
         name: creator.name,
         age: age,
+        language: creator.language,
         location: creator.native,
         tripType: trip.tripType,
         destination: trip.destination,

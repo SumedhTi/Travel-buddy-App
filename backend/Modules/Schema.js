@@ -48,7 +48,6 @@ const tripSchema = new mongoose.Schema({
   destinationType: String,
   groupSize: Number,
   activities: Array,
-  totalCost: Number,
   travelDate: Date,
   budget: Number,
   notes: String,

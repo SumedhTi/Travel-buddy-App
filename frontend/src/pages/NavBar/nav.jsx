@@ -1,13 +1,10 @@
 import {
   Home,
-  MapPin,
   Users,
   Calendar,
   MessageSquare,
   LogOut,
   Plane,
-  Heart,
-  Book,
   Settings,
   Menu,
   Plus,
@@ -46,7 +43,6 @@ const NavBar = ({ components }) => {
       active: false,
       route: "/AddTrip",
     },
-    { id: "buddies", label: "My buddies", icon: Heart, active: false },
     {
       id: "plans",
       label: "Travel plans",
@@ -55,19 +51,12 @@ const NavBar = ({ components }) => {
       route: "/trips",
     },
     {
-      id: "destinations",
-      label: "Destinations",
-      icon: MapPin,
-      active: false,
-    },
-    {
       id: "chats",
       label: "Chats",
       icon: MessageSquare,
       active: false,
       route: "/chats",
     },
-    { id: "itineraries", label: "Itineraries", icon: Book, active: false },
     { id: "Profile", label: "Profile", icon: User2, active: false ,route:"/profile" },
   ]);
 

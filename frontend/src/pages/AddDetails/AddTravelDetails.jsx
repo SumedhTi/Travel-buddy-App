@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import styles from "./AddTravelDetails.module.css";
 import { toast } from "react-toastify";
-import { BASE } from "../../../api";
 import { activityOptions, customStyles, preferences, tripTypes } from "../Profile/var";
 import CreatableSelect from "react-select/creatable";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -18,14 +17,13 @@ const AddTravelDetails = () => {
     destinationType: null,
     groupSize: "",
     activities: [],
-    totalCost: "",
     travelDate: "",
     budget: "",
     notes: "",
     isNew:true,
   });
   const { dispatch } = useUser();
-  const navigate = useNavigate(); // dispatch is already available
+  const navigate = useNavigate(); 
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   
   useEffect(() => {
@@ -89,13 +87,20 @@ const AddTravelDetails = () => {
       destinationType:"",
       groupSize: "",
       activities: [],
-      totalCost: "",
       travelDate: "",
       budget: "",
       notes: "",
       isNew:true,
     });
   };
+
+  function formatDateForInput(date) {
+    const d = new Date(date); 
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   return (
     <div>
@@ -196,23 +201,6 @@ const AddTravelDetails = () => {
                   min="1"
                 />
               </div>
-              {/* Total Cost */}
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Total cost</label>
-                <input
-                  type="number"
-                  className={styles.input}
-                  value={
-                    formData.totalCost || formData.budget * formData.groupSize
-                  }
-                  onChange={(e) =>
-                    handleInputChange("totalCost", e.target.value)
-                  }
-                  placeholder="Total trip cost"
-                  min="0"
-                  step="1"
-                />
-              </div>
 
               {/* Budget */}
               <div className={styles.formGroup}>
@@ -220,10 +208,7 @@ const AddTravelDetails = () => {
                 <input
                   type="number"
                   className={styles.input}
-                  value={
-                    formData.budget ||
-                    (formData.totalCost / formData.groupSize).toFixed(0)
-                  }
+                  value={formData.budget}
                   onChange={(e) => handleInputChange("budget", e.target.value)}
                   placeholder="Budget per person"
                   min="0"
@@ -236,7 +221,7 @@ const AddTravelDetails = () => {
                 <input
                   type="date"
                   className={styles.input}
-                  value={formData.travelDate}
+                  value={formatDateForInput(formData.travelDate)}
                   onChange={(e) =>
                     handleInputChange("travelDate", e.target.value)
                   }

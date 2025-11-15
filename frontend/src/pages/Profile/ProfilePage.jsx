@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./ProfilePage.module.css"; // <-- import as default
 import { BASE } from "../../../api";
 import { toast } from "react-toastify";
@@ -33,17 +33,17 @@ const ProfilePage = ({ userId }) => {
     interestType:[],
   });
   
+  const fetchProfileData = async () => {
+    const data = await fetchData(`/profile?id=${userId || state.user.id}`, "GET", navigate, dispatch);
+    if (data._id !== state.user.id){
+      setIsMyPage(false);
+    } else{
+      setIsMyPage(true);
+    }
+    setUserData(data);
+  };
   
   useEffect(() => {
-    const fetchProfileData = async () => {
-      const data = await fetchData(`/profile?id=${userId || state.user.id}`, "GET", navigate, dispatch);
-      if (data._id !== state.user.id){
-        setIsMyPage(false);
-      } else{
-        setIsMyPage(true);
-      }
-      setUserData(data);
-    };
     fetchProfileData();
   }, [userId, state.user.id, navigate, dispatch]);
   
@@ -53,6 +53,21 @@ const ProfilePage = ({ userId }) => {
       toast.success("Profile Updated");
     } 
   };
+
+  function formatDateForInput(date) {
+    const d = new Date(date); 
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  const dateObject = new Date(userData.dob);
+  const day = String(dateObject.getDate()).padStart(2, '0');
+  const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+  const fullYear = dateObject.getFullYear();
+  const year = String(fullYear);
+  const formattedDate = `${day}/${month}/${year}`;
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -146,7 +161,7 @@ const ProfilePage = ({ userId }) => {
                     <Save size={15} />
                     Save
                   </div>
-                  <button className={`${styles.addUserBtn} ${styles.cancelBtn}`} onClick={() => setEditMode(false)}>
+                  <button className={`${styles.addUserBtn} ${styles.cancelBtn}`} onClick={() => {setEditMode(false); fetchProfileData()}}>
                     Cancel
                   </button>
                 </div>
@@ -191,13 +206,13 @@ const ProfilePage = ({ userId }) => {
             {editMode ? (
               <input
                 type="date"
-                value={userData.dob}
+                value={formatDateForInput(userData.dob)}
                 onChange={(e) =>
                   setUserData({ ...userData, dob: e.target.value })
                 }
               />
             ) : (
-              <span className={styles.formValue}>{userData.dob}</span>
+              <span className={styles.formValue}>{formattedDate}</span>
             )}
           </div>
           {/* Gender */}
@@ -216,10 +231,10 @@ const ProfilePage = ({ userId }) => {
             )}
           </div>
           {/* Profile Rating */}
-          <div className={styles.formRow}>
+          {/* <div className={styles.formRow}>
             <label className={styles.formLabel}>Profile Rating :</label>
             <span className={styles.formValue}>{userData.profileRating}</span>
-          </div>
+          </div> */}
           {/* Email */}
           {isMyPage && (<><div className={styles.formRow}>
             <label className={styles.formLabel}>Email :</label>

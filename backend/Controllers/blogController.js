@@ -36,7 +36,7 @@ export const deleteBlog = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to delete this blog" });
     }
 
-    blog.deleteOne();
+    await blog.deleteOne();
     res.status(200).json({ message: "Blog deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
